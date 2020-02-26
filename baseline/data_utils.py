@@ -27,12 +27,13 @@ import re
 
 import tensorflow.compat.v1 as tf
 
-import schema
 from baseline.bert import tokenization
 
 
 # Dimension of the embedding for intents, slots and categorical slot values in
 # the schema. Should be equal to BERT's hidden_size.
+from schema import Schema
+
 EMBEDDING_DIMENSION = 768
 # Maximum allowed number of categorical trackable slots for a service.
 MAX_NUM_CAT_SLOT = 6
@@ -138,12 +139,12 @@ class Dstc8DataProcessor(object):
     ]
     dialogs = load_dialogues(dialog_paths)
     schema_path = os.path.join(self.dstc8_data_dir, dataset, "schema.json")
-    schemas = schema.Schema(schema_path)
+    schemas = Schema(schema_path)
 
     examples = []
     for dialog_idx, dialog in enumerate(dialogs):
-      tf.compat.v1.logging.log_every_n(
-          tf.compat.v1.logging.INFO, "Processed %d dialogs.", 1000, dialog_idx)
+      tf.logging.log_every_n(
+          tf.logging.INFO, "Processed %d dialogs.", 1000, dialog_idx)
       examples.extend(
           self._create_examples_from_dialog(dialog, schemas, dataset))
     return examples
@@ -487,7 +488,7 @@ class InputExample(object):
     # (including [CLS], [SEP], [SEP]) is no more than max_utt_len
     is_too_long = truncate_seq_pair(system_tokens, user_tokens, max_utt_len - 3)
     if is_too_long and self._log_data_warnings:
-      tf.compat.v1.logging.info(
+      tf.logging.info(
           "Utterance sequence truncated in example id - %s.", self.example_id)
 
     # Construct the tokens, segment mask and valid token mask which will be
@@ -608,7 +609,7 @@ class InputExample(object):
           # only makes use of the last two utterances to predict state updates,
           # it will fail in such cases.
           if self._log_data_warnings:
-            tf.compat.v1.logging.info(
+            tf.logging.info(
                 "Slot values %s not found in user or system utterance in "
                 "example with id - %s.", str(values), self.example_id)
           continue
@@ -645,7 +646,7 @@ def file_based_convert_examples_to_features(dial_examples, output_file):
 
   for (ex_index, example) in enumerate(dial_examples):
     if ex_index % 10000 == 0:
-      tf.compat.v1.logging.info("Writing example %d of %d", ex_index,
+      tf.logging.info("Writing example %d of %d", ex_index,
                                 len(dial_examples))
 
     if isinstance(example, PaddingInputExample):

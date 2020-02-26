@@ -26,9 +26,8 @@ import os
 
 import tensorflow.compat.v1 as tf
 
-import schema
 from baseline import data_utils
-
+import schema
 
 REQ_SLOT_THRESHOLD = 0.5
 
